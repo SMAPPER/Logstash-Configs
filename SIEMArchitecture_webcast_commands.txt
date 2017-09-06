@@ -34,7 +34,7 @@ output {
   elasticsearch {
     hosts => [ "192.168.2.100", "192.168.2.101" ]
     index => "logstash-%{+YYYY.MM.dd}"
-    user => "logstash_system"
+    user => "elastic"
     password => "changeme"
   }
 }
