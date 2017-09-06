@@ -1,0 +1,52 @@
+Elasticsearch Setup
+
+sudo dpkg -i elasticsearch-5.5.2.deb
+sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///home/jhenderson/x-pack-5.5.2.zip
+sudo vi /etc/elasticsearch/elasticsearch.yml
+
+Change cluster.name to be whatever name you want
+Change node.name to match hostname
+Change network.host to 0.0.0.0 (This allows it be accessed remotely - insecure!)
+Change discovery.zen.ping.unicast.hosts to be IP or DNS names of elasticsearch nodes
+
+sudo service elasticsearch start
+
+Logstash Setup
+
+sudo dpkg -i logstash-5.5.2.deb
+sudo /usr/share/logstash/bin/logstash-plugin install file:///home/jhenderson/x-pack-5.5.2.zip
+sudo vi /etc/logstash/logstash.yml
+
+Change node name to match hostname
+Add lines to bottom:
+
+xpack.monitoring.enabled: true
+xpack.montioring.elasticsearch.url: [ "http://192.168.2.100:9200", "http://192.168.2.101:9200" ]
+sudo vi /etc/logstash/conf.d/sample.conf
+
+input {
+  tcp {
+    port => 6000
+    codec => json
+  }
+}
+output {
+  elasticsearch {
+    hosts => [ "192.168.2.100", "192.168.2.101" ]
+    index => "logstash-%{+YYYY.MM.dd}"
+    user => "logstash_system"
+    password => "changeme"
+  }
+}
+sudo service logstash start
+
+Kibana Setup
+
+sudo dpkg -i kibana-5.5.2-amd64.deb
+sudo vi /etc/kibana/kibana.yml
+
+Change server.host to 0.0.0.0
+Change server.name to match hostname
+Change elasticsearch.url to point to an Elasticsearch node
+
+sudo /usr/share/kibana/bin/kibana-plugin install file:///home/jhenderson/x-pack-5.5.2.zip
